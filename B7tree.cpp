@@ -1,158 +1,134 @@
-#include<iostream>
-#include<string.h>
+/*
+Experiment 7 : Construct an expression tree from the given prefix and traverse it using post order traversal and then delete the entire tree.
+*/
+#include <iostream>
+#include <string.h>
 using namespace std;
 
 struct node
 {
-	char data;
-	node *left;
-	node *right;
+    char data;
+    node *left;
+    node *right;
 };
-
 class tree
 {
-	char prefix[20];
-	
-	public:
-		node *top;
-		void expression(char []);
-		void display(node *);
-		void non_rec_postorder(node *);
-		void del(node *);
-};
+    char prefix[20];
 
-class Stack
-{
-	node *data[30];
-	int top;
-	
-	public:
-		Stack()
-		{
-			top = -1;
-		}
-		
-		int empty()
-		{
-			if(top == -1)
-				return 1;
-			return 0;	
-		}
-		
-		void push(node *p)
-		{
-			data[++top] = p;
-		}
-		
-		node *pop()
-		{
-			return(data[top--]);
-		}
+public:
+    node *top;
+    void expression(char[]);
+    void display(node *);
+    void non_rec_postorder(node *);
+    void del(node *);
 };
-
-void tree :: expression(char prefix[])
+class stack1
 {
-	char c;
-	Stack s;
-	node *t1, *t2;
-	int len,i;
-	len = strlen(prefix);
-	
-	for(i=len-1; i>=0; i--)
-	{
-		top = new node;
-        top->left=NULL;
-        top->right=NULL;
-        
-        if(isalpha(prefix[i]))
+    node *data[30];
+    int top;
+
+public:
+    stack1()
+    {
+        top = -1;
+    }
+    int empty()
+    {
+        if (top == -1)
+            return 1;
+        return 0;
+    }
+    void push(node *p)
+    {
+        data[++top] = p;
+    }
+    node *pop()
+    {
+        return (data[top--]);
+    }
+};
+void tree::expression(char prefix[])
+{
+    char c;
+    stack1 s;
+    node *t1, *t2;
+    int len, i;
+    len = strlen(prefix);
+    for (i = len - 1; i >= 0; i--)
+    {
+        top = new node;
+        top->left = NULL;
+        top->right = NULL;
+        if (isalpha(prefix[i]))
         {
-            top->data=prefix[i];
+            top->data = prefix[i];
             s.push(top);
         }
-        else if(prefix[i]=='+'||prefix[i]=='-'||prefix[i]=='*'||prefix[i]=='/')
+        else if (prefix[i] == '+' || prefix[i] == '*' || prefix[i] == '-' || prefix[i] == '/')
         {
             t2 = s.pop();
-            t1=s.pop();
-            top->data=prefix[i];
+            t1 = s.pop();
+            top->data = prefix[i];
             top->left = t2;
-            top->right=t1;
+            top->right = t1;
             s.push(top);
         }
-
-	}
-	top = s.pop();
+    }
+    top = s.pop();
 }
-
-void tree::display(node *top){
-    Stack s1,s2;
-    
+void tree::display(node *root)
+{
+    if (root != NULL)
+    {
+        cout << root->data;
+        display(root->left);
+        display(root->right);
+    }
+}
+void tree::non_rec_postorder(node *top)
+{
+    stack1 s1, s2; /*stack s1 is being used for flag . A NULL data implies that the right subtree has not been visited */
     node *T = top;
+    cout << "\n";
     s1.push(T);
-    while(!s1.empty()){
+    while (!s1.empty())
+    {
         T = s1.pop();
         s2.push(T);
-        
-        if(T->left!=NULL){
+        if (T->left != NULL)
             s1.push(T->left);
-        }
-        
-        if(T->right!=NULL){
+        if (T->right != NULL)
             s1.push(T->right);
-        }
     }
-    
-    while(!s2.empty()){
-        
+    while (!s2.empty())
+    {
         top = s2.pop();
-        cout<<top->data;
-        
+        cout << top->data;
     }
-    cout<<endl;
 }
-
-void tree::del(node *node){
-    if(node==NULL){
+void tree::del(node *node)
+{
+    if (node == NULL)
         return;
-    }
+    /* first delete both subtrees */
     del(node->left);
     del(node->right);
-    cout<<"Deleting node: "<<node->data<<endl;
+    /* then delete the node */
+    cout <<endl<<"Deleting node : " << node->data<<endl;
     free(node);
 }
-
-int main(){
+int main()
+{
+    char expr[20];
     tree t;
-    char exp1[20];
-    
-    int ch;
-    do{
-        cout<<"1 -> Enter prefix expression"<<endl;
-        cout<<"2 -> Display postfix Expression"<<endl;
-        cout<<"3 -> Deletion"<<endl;
-        cout<<"4 -> Exit"<<endl;
-        cout<<"Choose an option (1-4):\t";
-        cin>>ch;
-        
-        switch(ch){
-        
-            case 1:
-                cout<<"Enter the expression (eg.: +--a*bc/def):\t";
-                cin>>exp1;
-                t.expression(exp1);
-                break;
-            case 2:
-                t.display(t.top);
-                break;
-            case 3:
-                t.del(t.top);
-                break;
-            case 4:
-                cout<<"\n// END OF CODE\n"<<endl;
-                break;
-            default:
-                cout<<"Choose a valid option (1-4).";
-                break;
-        }
-    }while(ch!=4);
-}
 
+    cout <<"Enter prefix Expression : ";
+    cin >> expr;
+    cout << expr;
+    t.expression(expr);
+    //t.display(t.top);
+    //cout<<endl;
+    t.non_rec_postorder(t.top);
+    t.del(t.top);
+    // t.display(t.top);
+}																					
